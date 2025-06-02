@@ -78,4 +78,29 @@ make -j$(get_cpu_count) || return 1
 make install || return 1
 
 # MANUALLY COPY PKG-CONFIG FILES
-cp x265.pc "${INSTALL_PKG_CONFIG_DIR}" || return 1
+# The x265.pc file is installed by 'make install' into the library's specific
+# pkgconfig directory, e.g., ${LIB_INSTALL_PREFIX}/lib/pkgconfig/x265.pc.
+# This needs to be copied to the common ${INSTALL_PKG_CONFIG_DIR} for other libraries (like ffmpeg) to find it.
+INSTALLED_X265_PC_PATH="${LIB_INSTALL_PREFIX}/lib/pkgconfig/x265.pc"
+
+echo "DEBUG: Checking for installed x265.pc at ${INSTALLED_X265_PC_PATH}" 1>>"${BASEDIR}"/build.log
+
+if [ -f "${INSTALLED_X265_PC_PATH}" ]; then
+  echo "INFO: Found x265.pc at installed location: ${INSTALLED_X265_PC_PATH}. Copying to ${INSTALL_PKG_CONFIG_DIR}." 1>>"${BASEDIR}"/build.log
+  cp "${INSTALLED_X265_PC_PATH}" "${INSTALL_PKG_CONFIG_DIR}" || return 1
+else
+  echo "ERROR: x265 pkg-config file not found after install at expected location: ${INSTALLED_X265_PC_PATH}" 1>>"${BASEDIR}"/build.log
+  echo "ERROR: This is unexpected as 'make install' should have placed it there." 1>>"${BASEDIR}"/build.log
+  echo "ERROR: Please check the x265 build and install logs for errors." 1>>"${BASEDIR}"/build.log
+  # Optionally, you can try the fallback, but it's less reliable:
+  # BUILD_DIR_X265_PC_PATH="${BUILD_DIR}/x265.pc"
+  # if [ -f "${BUILD_DIR_X265_PC_PATH}" ]; then
+  #   echo "WARN: Falling back to copying x265.pc from build directory: ${BUILD_DIR_X265_PC_PATH}" 1>>"${BASEDIR}"/build.log
+  #   cp "${BUILD_DIR_X265_PC_PATH}" "${INSTALL_PKG_CONFIG_DIR}" || return 1
+  # else
+  #   echo "ERROR: x265.pc also not found in build directory ${BUILD_DIR_X265_PC_PATH}." 1>>"${BASEDIR}"/build.log
+  #   return 1
+  # fi
+  return 1 # Make it a hard error if the installed .pc file is not found
+fi
+

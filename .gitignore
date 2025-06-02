@@ -3,3 +3,7 @@
 /prebuilt/
 .DS_Store
 .idea
+tools/android/.gradle
+flutter/flutter/android/libs
+flutter/flutter/ios/Frameworks
+.vscode

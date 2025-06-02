@@ -8,6 +8,9 @@ if [[ ! -f "${BASEDIR}"/src/"${LIB_NAME}"/configure ]] || [[ ${RECONF_libsndfile
   autoreconf_library "${LIB_NAME}" 1>>"${BASEDIR}"/build.log 2>&1 || return 1
 fi
 
+# WORKAROUND TO USE A CUSTOM BUILD FILE (CMakeLists.txt)
+overwrite_file "${BASEDIR}/tools/patch/cmake/libsndfile/CMakeLists.txt" "${BASEDIR}/src/${LIB_NAME}/CMakeLists.txt" || return 1
+
 ./configure \
   --prefix="${LIB_INSTALL_PREFIX}" \
   --with-pic \

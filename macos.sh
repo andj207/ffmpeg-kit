@@ -169,6 +169,28 @@ for disabled_library in ${disabled_libraries[@]}; do
   set_library "${disabled_library}" 0
 done
 
+# RE-ASSERT DEPENDENCIES FOR ALL INTENDED ENABLED LIBRARIES
+# This ensures that if a library is enabled (e.g. fontconfig by --full),
+# its dependencies (e.g. libiconv) are also enabled, even if another
+# disabled library (e.g. gnutls) tried to disable them.
+echo -e "INFO: Re-asserting dependencies for all currently enabled libraries.\n" 1>>"${BASEDIR}"/build.log 2>&1
+declare -a final_enabled_indices=()
+for i in $(seq 0 $((${#ENABLED_LIBRARIES[@]} - 1))); do
+    if [[ ${ENABLED_LIBRARIES[$i]} -eq 1 ]]; then
+        final_enabled_indices+=($i)
+    fi
+done
+
+for idx in "${final_enabled_indices[@]}"; do
+    lib_name_to_reinforce=$(get_library_name $idx)
+    # Only proceed if get_library_name returns a non-empty string (valid library)
+    if [[ -n "$lib_name_to_reinforce" ]]; then
+        # set_library has its own platform support check
+        echo -e "INFO: Re-asserting ${lib_name_to_reinforce} and its dependencies as enabled.\n" 1>>"${BASEDIR}"/build.log 2>&1
+        set_library "$lib_name_to_reinforce" 1
+    fi
+done
+
 # IF HELP DISPLAYED EXIT
 if [[ -n ${DISPLAY_HELP} ]]; then
   display_help

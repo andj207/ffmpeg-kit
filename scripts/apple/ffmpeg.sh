@@ -441,13 +441,24 @@ else
 fi
 MIN_VERSION_CFLAGS=$(get_min_version_cflags)
 COMMON_INCLUDES=$(get_common_includes)
-
 # PREPARE CFLAGS LDFLAGS BEFORE COMBINING THEM
 ARCH_LDFLAGS=$(get_arch_specific_ldflags)
+
+# OPTIMIZATION_FLAGS (now FINAL_OPTIMIZATION_LDFLAGS) should not add compiler-style optimization
+# flags like -O2 or -Oz to LDFLAGS. Linker optimizations are different (e.g., -dead_strip, -flto).
+# We ensure FINAL_OPTIMIZATION_LDFLAGS is empty here, relying on -dead_strip or other
+# specific linker flags being handled by get_common_ldflags() or get_ldflags().
+FINAL_OPTIMIZATION_LDFLAGS=""
+
 if [[ -z ${FFMPEG_KIT_DEBUG} ]]; then
-  OPTIMIZATION_FLAGS="$(get_size_optimization_ldflags ${LIB_NAME})"
+  # The original OPTIMIZATION_FLAGS might have come from get_size_optimization_ldflags()
+  # which could incorrectly return compiler flags like -O2/-Oz.
+  # For LDFLAGS, we'll use the empty FINAL_OPTIMIZATION_LDFLAGS.
+  : # No operation, FINAL_OPTIMIZATION_LDFLAGS remains empty
 else
-  OPTIMIZATION_FLAGS="${FFMPEG_KIT_DEBUG}"
+  # For debug builds, FFmpeg configure's --enable-debug handles relevant settings.
+  # The original OPTIMIZATION_FLAGS was set to FFMPEG_KIT_DEBUG.
+  : # No operation, FINAL_OPTIMIZATION_LDFLAGS remains empty
 fi
 LINKED_LIBRARIES=$(get_common_linked_libraries)
 COMMON_LDFLAGS=$(get_common_ldflags)
@@ -455,7 +466,7 @@ COMMON_LDFLAGS=$(get_common_ldflags)
 # UPDATE BUILD FLAGS
 export CFLAGS="${ARCH_CFLAGS} ${APP_CFLAGS} ${COMMON_CFLAGS} ${OPTIMIZATION_CFLAGS} ${MIN_VERSION_CFLAGS}${FFMPEG_CFLAGS} ${COMMON_INCLUDES}"
 export CXXFLAGS=$(get_cxxflags "${LIB_NAME}")
-export LDFLAGS="${ARCH_LDFLAGS}${HIGH_PRIORITY_LDFLAGS}${FFMPEG_LDFLAGS} ${LINKED_LIBRARIES} ${COMMON_LDFLAGS} ${BITCODE_FLAGS} ${OPTIMIZATION_FLAGS}"
+export LDFLAGS="${ARCH_LDFLAGS}${HIGH_PRIORITY_LDFLAGS}${FFMPEG_LDFLAGS} ${LINKED_LIBRARIES} ${COMMON_LDFLAGS} ${BITCODE_FLAGS} ${FINAL_OPTIMIZATION_LDFLAGS}"
 
 echo -n -e "\n${LIB_NAME}: "
 

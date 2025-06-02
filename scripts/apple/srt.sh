@@ -17,6 +17,11 @@ esac
 # ALWAYS CLEAN THE PREVIOUS BUILD
 git clean -dfx 2>/dev/null 1>/dev/null
 
+
+# WORKAROUND TO USE A CUSTOM BUILD FILE (CMakeLists.txt)
+overwrite_file "${BASEDIR}/tools/patch/cmake/srt/CMakeLists.txt" "${BASEDIR}/src/${LIB_NAME}/CMakeLists.txt" || return 1
+
+
 cmake -Wno-dev \
  -DUSE_ENCLIB=openssl \
  -DCMAKE_VERBOSE_MAKEFILE=0 \

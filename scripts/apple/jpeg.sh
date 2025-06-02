@@ -28,6 +28,9 @@ ${SED_INLINE} 's/${CMAKE_C_FLAGS} ${CMAKE_ASM_FLAGS}/${CMAKE_ASM_FLAGS}/g' "${BA
 mkdir -p "${BUILD_DIR}" || return 1
 cd "${BUILD_DIR}" || return 1
 
+# WORKAROUND TO USE A CUSTOM BUILD FILE (CMakeLists.txt)
+overwrite_file "${BASEDIR}/tools/patch/cmake/jpeg/CMakeLists.txt" "${BASEDIR}/src/${LIB_NAME}/CMakeLists.txt" || return 1
+
 cmake -Wno-dev \
   -DCMAKE_VERBOSE_MAKEFILE=0 \
   -DCMAKE_C_FLAGS="${CFLAGS}" \
