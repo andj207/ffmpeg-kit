@@ -3,6 +3,15 @@
 mkdir -p "${BUILD_DIR}" || return 1
 cd "${BUILD_DIR}" || return 1
 
+# WORKAROUND TO USE A CUSTOM BUILD FILE (CMakeLists.txt)
+# This copies your patched CMakeLists.txt into the soxr source directory
+if [ -f "${BASEDIR}/tools/patch/cmake/soxr/CMakeLists.txt" ]; then
+  overwrite_file "${BASEDIR}/tools/patch/cmake/soxr/CMakeLists.txt" "${BASEDIR}/src/${LIB_NAME}/CMakeLists.txt" || return 1
+  echo "INFO: Applied patched CMakeLists.txt for soxr." 1>>"${BASEDIR}"/build.log
+else
+  echo "WARNING: Patched CMakeLists.txt for soxr not found at ${BASEDIR}/tools/patch/cmake/soxr/CMakeLists.txt. Using original." 1>>"${BASEDIR}"/build.log
+fi
+
 cmake -Wno-dev \
   -DCMAKE_VERBOSE_MAKEFILE=0 \
   -DCMAKE_C_FLAGS="${CFLAGS}" \

@@ -2,13 +2,11 @@
 
 # SET BUILD OPTIONS
 ASM_OPTIONS=""
+# Disable SSE for x86 targets via CFLAGS to avoid fp.h issues.
+# Enable NEON for ARM targets via ASM_OPTIONS.
 case ${ARCH} in
-x86*)
-  ASM_OPTIONS=" --enable-intel-sse=yes"
-  ;;
-arm*)
-  ASM_OPTIONS=" --enable-arm-neon=yes"
-  ;;
+x86*) export CFLAGS="${CFLAGS} -DPNG_NO_INTEL_SSE -U_MSC_VER -U_M_IX86 -U_M_X64 -DPNG_INTEL_SSE_OPT=0" ;;
+arm*) ASM_OPTIONS=" --enable-arm-neon=yes" ;;
 esac
 
 # ALWAYS CLEAN THE PREVIOUS BUILD
@@ -36,6 +34,7 @@ fi
   --with-pic \
   --with-sysroot="${SDK_PATH}" \
   --enable-static \
+  --enable-intel-sse=no \
   --disable-shared \
   --disable-fast-install \
   --disable-unversioned-libpng-pc \
@@ -43,7 +42,7 @@ fi
   ${ASM_OPTIONS} \
   --host="${HOST}" || return 1
 
-make -j$(get_cpu_count) || return 1
+make -j"$(get_cpu_count)" || return 1
 
 make install || return 1
 

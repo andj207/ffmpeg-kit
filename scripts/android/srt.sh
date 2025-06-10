@@ -23,6 +23,10 @@ esac
 # WORKAROUND TO GENERATE BASE BUILD FILES
 ./configure || echo "" 2>/dev/null 1>/dev/null
 
+# WORKAROUND TO USE A CUSTOM BUILD FILE (CMakeLists.txt)
+# In your android/srt.sh (or equivalent)
+cp "${BASEDIR}/tools/patch/cmake/srt/CMakeLists.txt" "${BASEDIR}/src/srt/CMakeLists.txt" || return 1
+
 cmake -Wno-dev \
  -DUSE_ENCLIB=openssl \
  -DCMAKE_VERBOSE_MAKEFILE=0 \

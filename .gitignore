@@ -7,3 +7,4 @@ tools/android/.gradle
 flutter/flutter/android/libs
 flutter/flutter/ios/Frameworks
 .vscode
+/src

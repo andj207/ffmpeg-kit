@@ -20,8 +20,11 @@ esac
 mkdir -p "${BUILD_DIR}" || return 1
 cd "${BUILD_DIR}" || return 1
 
-# WORKAROUND TO FIX static_assert ERRORS
-${SED_INLINE} 's/gnu++98/c++11/g' "${BASEDIR}"/src/"${LIB_NAME}"/source/CMakeLists.txt || return 1
+# REMOVE PREVIOUS C++ STANDARD WORKAROUND AS IT'S HANDLED BY THE OVERRIDDEN CMAKELISTS OR ORIGINAL LOGIC
+# ${SED_INLINE} 's/gnu++98/c++11/g' "${BASEDIR}"/src/"${LIB_NAME}"/source/CMakeLists.txt || return 1
+
+# OVERWRITE CMakeLists.txt TO FIX CMAKE POLICY AND MINIMUM REQUIRED ERRORS
+cp "${BASEDIR}/tools/patch/cmake/x265/CMakeLists.txt" "${BASEDIR}/src/${LIB_NAME}/source/CMakeLists.txt" || return 1
 
 cmake -Wno-dev \
   -DCMAKE_VERBOSE_MAKEFILE=0 \
