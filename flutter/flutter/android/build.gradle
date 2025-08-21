@@ -30,11 +30,11 @@ android {
         namespace 'com.arthenica.ffmpegkit.flutter'
     }
 
-    compileSdkVersion 33
+    compileSdk 33
 
     defaultConfig {
         minSdkVersion 24
-        targetSdkVersion 33
+        targetSdk 33
         versionCode 603
         versionName "6.0.3"
     }
@@ -54,7 +54,7 @@ android {
 }
 
 dependencies {
-    implementation 'androidx.annotation:annotation:1.5.0'
+    implementation 'androidx.annotation:annotation:1.9.1'
     // implementation 'com.arthenica:ffmpeg-kit-https:6.0-2'
     implementation fileTree(dir: 'libs', include: ['*.jar']) //'*.aar'
     implementation('com.arthenica:smart-exception-java:0.2.1') // Dependency from Live
